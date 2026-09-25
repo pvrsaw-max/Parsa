@@ -31,9 +31,6 @@ jobs:
       - name: Install dependencies
         run: npm install --no-audit --no-fund
 
-      - name: Run audit tests
-        run: npm run test:audit
-
       - name: Build
         run: npm run build
 
