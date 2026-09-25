@@ -1,0 +1,28 @@
+import fs from'node:fs';import assert from'node:assert/strict';
+import{quotePrompts,QUOTE_GUESS_MS}from'../src/data/quoteGame.js';
+import{parsePlayers,canStartQuoteRound,nextUnanswered,makeQuote,scoreGuess}from'../src/lib/quoteMachine.js';
+const read=p=>fs.readFileSync(new URL('../'+p,import.meta.url),'utf8');let n=0;const ok=(name,fn)=>{fn();n++;console.log('✓',name)};
+ok('quote player parsing deduplicates',()=>assert.deepEqual(parsePlayers('علی، سارا، علی، رضا'),['علی','سارا','رضا']));
+ok('quote requires three players',()=>assert.equal(canStartQuoteRound(['علی','سارا'],[]),false));
+const ps=['علی','سارا','رضا'];let qs=[];for(let i=0;i<ps.length;i++){const r=makeQuote({speaker:ps[i],text:`جواب ${i+1}`,prompt:quotePrompts[i],id:`t${i}`});assert.equal(r.ok,true);qs.push(r.quote);if(i<2)assert.equal(canStartQuoteRound(ps,qs),false)}
+ok('quote collection reaches playable state',()=>assert.equal(canStartQuoteRound(ps,qs),true));
+ok('quote next unanswered advances',()=>assert.equal(nextUnanswered(ps,qs.slice(0,1),'علی'),'سارا'));
+ok('quote rejects empty answer',()=>assert.equal(makeQuote({speaker:'علی',text:' ',prompt:quotePrompts[0]}).ok,false));
+ok('quote hit scoring',()=>assert.deepEqual(scoreGuess('سارا','سارا'),{hit:1,miss:0}));
+ok('quote miss scoring',()=>assert.deepEqual(scoreGuess('سارا','رضا'),{hit:0,miss:1}));
+ok('quote timeout scoring',()=>assert.deepEqual(scoreGuess('سارا','',true),{hit:0,miss:1}));
+ok('quote timer remains 15s',()=>assert.equal(QUOTE_GUESS_MS,15000));
+const quote=read('src/screens/QuoteGame.jsx'),css=read('src/styles/app.css'),main=read('src/main.jsx'),rapid=read('src/screens/RapidFire.jsx'),one=read('src/screens/OneWordGame.jsx');
+ok('quote has explicit completion screen',()=>assert.match(quote,/اعتراف‌ها جمع شد/));
+ok('quote save has action lock',()=>assert.match(quote,/actionLock\.current/));
+ok('quote registration has visible feedback',()=>assert.match(quote,/role="status"/));
+ok('quote main actions are full width',()=>assert.match(css,/\.quoteMainAction\{width:100%/));
+ok('global textarea inherits font',()=>assert.match(css,/button,textarea,input,select\{font:inherit\}/));
+ok('error boundary wraps app',()=>{assert.match(main,/ErrorBoundary/);assert.match(main,/<ErrorBoundary><App\/><\/ErrorBoundary>/)});
+ok('rapid fire guards double taps',()=>assert.match(rapid,/actionLock\.current/));
+ok('one word scores after lock guard',()=>assert.match(one,/const act=kind=>\{if\(lock\.current\|\|phase!==['"]play['"]\)return/));
+ok('small-screen quote grid exists',()=>assert.match(css,/@media\(max-width:360px\)[\s\S]*\.quoteSpeaker>div/));
+const wf=read('.github/workflows/deploy.yml'),vite=read('vite.config.js');
+ok('GitHub Pages workflow audits before build',()=>assert.ok(wf.indexOf('npm run test:audit')<wf.indexOf('npm run build')));
+ok('Vite base is relative for Pages',()=>assert.match(vite,/base:"\.\/"/));
+console.log(`PRODUCTION HARDENING V37 ${n}/${n}`);

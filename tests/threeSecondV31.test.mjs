@@ -1,0 +1,13 @@
+import fs from"node:fs";import assert from"node:assert/strict";
+const data=fs.readFileSync(new URL("../src/data/threeSecondGame.js",import.meta.url),"utf8");
+const screen=fs.readFileSync(new URL("../src/screens/ThreeSecondGame.jsx",import.meta.url),"utf8");
+const modes=fs.readFileSync(new URL("../src/screens/PartyModes.jsx",import.meta.url),"utf8");
+const css=fs.readFileSync(new URL("../src/styles/app.css",import.meta.url),"utf8");
+let n=0;const ok=(v,m)=>{assert.ok(v,m);n++};
+ok(data.includes("THREE_SECOND_MS = 3000"),"timer must be exactly 3000ms");
+const ids=[...data.matchAll(/id:`three/g)].length;ok(ids===1,"cards should be generated from packs");
+const prompts=[...data.matchAll(/\[\"([^\"]+)\",\[\"/g)].map(x=>x[1]);ok(prompts.length===180,`expected 180 prompts, got ${prompts.length}`);ok(new Set(prompts).size===180,"prompt texts must be unique");
+ok((data.match(/\"[^\"]+\":\[/g)||[]).length>=15,"needs at least 15 packs");
+ok(data.includes("difficultyFor"),"difficulty tiers missing");ok(data.includes("examples"),"host examples missing");
+ok(screen.includes("Date.now()+THREE_SECOND_MS"),"deadline-based timer missing");ok(screen.includes("setInterval(tick,40)"),"high resolution countdown missing");ok(screen.includes('phase==="ready"'),"ready gate missing");ok(screen.includes('phase==="judge"'),"judge phase missing");ok(screen.includes("جوابی که بعد از صفر"),"timeout rule missing");ok(screen.includes("playersText"),"player rotation missing");ok(screen.includes("setStreak"),"streak tracking missing");ok(screen.includes("نمونه‌اند"),"examples must be labeled non-exclusive");ok(modes.includes('ThreeSecondGame'),"mode routing missing");ok(css.includes(".threeClock")&&css.includes("@media(max-width:390px)"),"mobile timer styles missing");ok(css.includes("prefers-reduced-motion"),"reduced motion support missing");
+console.log(`Three Second V31: ${n}/${n} PASS`);

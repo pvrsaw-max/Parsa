@@ -1,0 +1,11 @@
+import fs from'node:fs';let ok=0;const t=(n,c)=>{if(!c)throw new Error('FAIL '+n);console.log('PASS '+n);ok++};const questions=fs.readFileSync('src/data/questions.js','utf8'),app=fs.readFileSync('src/App.jsx','utf8'),landing=fs.readFileSync('src/screens/Landing.jsx','utf8'),modes=fs.readFileSync('src/screens/PartyModes.jsx','utf8'),quote=fs.readFileSync('src/screens/QuoteGame.jsx','utf8'),three=fs.readFileSync('src/data/threeSecondGame.js','utf8'),values=fs.readFileSync('src/screens/Values.jsx','utf8'),css=fs.readFileSync('src/styles/app.css','utf8');
+t('all five score values preserved',questions.includes('export const values=[200,300,400,500,600]'));
+t('old score nicknames removed',!values.includes('گرم‌کردن')&&!values.includes('لبه تیغ'));
+t('auction stopwatch rendered',app.includes('auctionStopwatch')&&app.includes('زمان سپری‌شده حراج'));
+t('auction response bid remains 2 to 15 seconds',app.includes('min="2" max="15"'));
+t('landing exposes side games',landing.includes('بازی‌های جانبی')&&landing.includes('onModes'));
+for(const n of ['رگبار','زنجیره','یک کلمه، بیشتر نه','کارگردان','سه‌ثانیه','کی اینو گفت؟'])t('mode '+n,modes.includes(n));
+t('three-second mode has real 3 second timer',modes.includes('id:"three"')&&three.includes('THREE_SECOND_MS = 3000'));
+t('quote mode stores speaker and quote',quote.includes('setQuotes')&&quote.includes('speaker')&&quote.includes('گوینده'));
+t('mobile mode layout included',css.includes('.modeGrid')&&css.includes('@media(max-width:390px)'));
+console.log(`GAME MODES V26 ${ok}/14`);

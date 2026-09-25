@@ -1,0 +1,15 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+let n=0;const T=(name,cond)=>{assert.ok(cond,name);n++;console.log('PASS',name)};
+const vite=fs.readFileSync(new URL('../vite.config.js',import.meta.url),'utf8');
+const index=fs.readFileSync(new URL('../index.html',import.meta.url),'utf8');
+const workflow=fs.readFileSync(new URL('../.github/workflows/deploy.yml',import.meta.url),'utf8');
+T('relative Vite base works under repository subpath',/base\s*:\s*["']\.\/["']/.test(vite));
+T('PWA start URL is repository-relative',/start_url\s*:\s*["']\.\/["']/.test(vite));
+T('PWA scope is repository-relative',/scope\s*:\s*["']\.\/["']/.test(vite));
+T('apple touch icon is relative',index.includes('href="./icon-192.png"'));
+T('viewport-fit cover enabled for iPhone safe areas',index.includes('viewport-fit=cover'));
+T('Pages workflow builds dist',workflow.includes('npm run build')&&workflow.includes('path: ./dist'));
+T('Pages workflow runs full audit before build',workflow.includes('npm run test:audit'));
+T('Pages deployment has required permissions',workflow.includes('pages: write')&&workflow.includes('id-token: write'));
+console.log(`GITHUB PAGES V23 ${n}/${n}`);

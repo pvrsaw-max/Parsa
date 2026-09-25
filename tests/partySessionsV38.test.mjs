@@ -1,0 +1,5 @@
+import fs from 'node:fs';import path from 'node:path';
+const root=process.cwd();const read=p=>fs.readFileSync(path.join(root,p),'utf8');let pass=0;const check=(name,ok)=>{if(!ok)throw new Error('FAIL: '+name);console.log('✓',name);pass++};
+const setup=read('src/components/PartySessionSetup.jsx');check('shared setup asks player names',setup.includes('چند نفریم؟'));check('shared setup asks rounds',setup.includes('چند راند بازی می‌کنیم؟'));check('rounds clamped 1..12',setup.includes('Math.min(12'));check('scoreboard shared',setup.includes('MiniScoreboard'));
+for(const f of ['RapidFire','ChainGame','OneWordGame','DirectorGame','ThreeSecondGame','QuoteGame']){const s=read(`src/screens/${f}.jsx`);check(`${f} uses PartySessionSetup`,s.includes('PartySessionSetup'));check(`${f} uses MiniScoreboard`,s.includes('MiniScoreboard'));check(`${f} has rounds state`,s.includes('setRounds'));check(`${f} has score state`,s.includes('setScores'));}
+check('quote requires 3 players',read('src/screens/QuoteGame.jsx').includes('minPlayers={3}'));console.log(`\nV38 party sessions: ${pass} checks passed`);
