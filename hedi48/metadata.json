@@ -1,0 +1,6 @@
+{
+  "name": "مدیریار - مدیریت جامع کارهای روزانه",
+  "description": "سامانه هوشمند و یکپارچه برنامه‌ریزی، مدیریت وظایف، عادات، پومودورو و عملکرد روزانه",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
